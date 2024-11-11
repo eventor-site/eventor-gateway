@@ -1,4 +1,4 @@
-package com.eventorgateway.config;// package com.sikyeojogateway.config;
+package com.eventorgateway.config;// package com.eventorgateway.config;
 //
 // import org.springframework.cache.CacheManager;
 // import org.springframework.cache.annotation.EnableCaching;

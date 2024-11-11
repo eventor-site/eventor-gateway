@@ -3,8 +3,8 @@ package com.eventorgateway.auth.client;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.sikyeojogateway.auth.dto.ReissueTokensDto;
-import com.sikyeojogateway.auth.dto.response.ReissueTokensResponse;
+import com.eventorgateway.auth.dto.ReissueTokensDto;
+import com.eventorgateway.auth.dto.response.ReissueTokensResponse;
 
 import reactor.core.publisher.Mono;
 

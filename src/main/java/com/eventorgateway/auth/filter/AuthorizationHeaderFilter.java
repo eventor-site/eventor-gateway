@@ -15,9 +15,9 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.sikyeojogateway.auth.client.TokenClient;
-import com.sikyeojogateway.auth.dto.ReissueTokensDto;
-import com.sikyeojogateway.auth.util.JwtUtils;
+import com.eventorgateway.auth.client.TokenClient;
+import com.eventorgateway.auth.dto.ReissueTokensDto;
+import com.eventorgateway.auth.util.JwtUtils;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import reactor.core.publisher.Flux;
