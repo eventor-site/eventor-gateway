@@ -20,14 +20,14 @@ public class RouteLocatorConfig {
 			// .route("bookstore-back", r -> r.path("/back/**")
 			//         .uri("lb://book-store-back") // 로드밸런싱 활성화
 			// )
-			.route("sikyeojo-auth", r -> r.path("/back/users/sign-up")
+			.route("eventor-auth", r -> r.path("/back/users/sign-up")
 				.uri("http://localhost:8083")
 			)
-			.route("sikyeojo-back", r -> r.path("/back/**")
+			.route("eventor-back", r -> r.path("/back/**")
 				.filters(f -> f.filter(authorizationHeaderFilter.apply(new AuthorizationHeaderFilter.Config())))
 				.uri("http://localhost:8083")
 			)
-			.route("sikyeojo-auth", r -> r.path("/auth/**")
+			.route("eventor-auth", r -> r.path("/auth/**")
 				.uri("http://localhost:8070")
 			)
 			.build();
