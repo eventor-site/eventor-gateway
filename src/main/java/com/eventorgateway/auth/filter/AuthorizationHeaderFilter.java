@@ -41,7 +41,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	@Override
 	public GatewayFilter apply(Config config) {
 		return (exchange, chain) -> {
-			String accessToken = extractToken(exchange, "Authorization");
+			String accessToken = extractToken(exchange, "Access-Token");
 			String refreshToken = extractToken(exchange, "Refresh-Token");
 
 			try {
@@ -71,13 +71,13 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				String newRefreshToken = response.refreshToken();
 
 				// 새로 발급된 토근 응답에 추가
-				exchange.getResponse().getHeaders().add("New-Authorization",
+				exchange.getResponse().getHeaders().add("New-Access-Token",
 					URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8));
 				exchange.getResponse().getHeaders().add("New-Refresh-Token",
 					URLEncoder.encode(newRefreshToken, StandardCharsets.UTF_8));
 
 				ServerHttpRequest updatedRequest = exchange.getRequest().mutate()
-					.header("Authorization", newAccessToken)
+					.header("Access-Token", newAccessToken)
 					.header("Refresh-Token", newRefreshToken)
 					.build();
 
