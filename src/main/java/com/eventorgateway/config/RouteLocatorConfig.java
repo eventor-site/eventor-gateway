@@ -20,7 +20,7 @@ public class RouteLocatorConfig {
 			// .route("bookstore-back", r -> r.path("/back/**")
 			//         .uri("lb://book-store-back") // 로드밸런싱 활성화
 			// )
-			.route("eventor-back", r -> r.path("/back/users/sign-up")
+			.route("eventor-back", r -> r.path("/back/users/signUp/**")
 				.uri("http://localhost:8083")
 			)
 			.route("eventor-back", r -> r.path("/back/**")
