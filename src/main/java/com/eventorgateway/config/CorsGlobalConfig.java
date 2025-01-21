@@ -12,7 +12,7 @@ public class CorsGlobalConfig {
 	@Bean
 	public CorsWebFilter corsWebFilter() {
 		CorsConfiguration corsConfig = new CorsConfiguration();
-		corsConfig.addAllowedOrigin("https://sikyeojo.shop");
+		corsConfig.addAllowedOrigin("/**");
 		corsConfig.addAllowedMethod("*");
 		corsConfig.addAllowedHeader("*");
 		corsConfig.setAllowCredentials(true);
