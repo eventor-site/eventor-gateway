@@ -10,6 +10,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -65,15 +66,17 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	// 액세스 토큰이 만료된 경우 재발급을 요청하는 메소드
 	private Mono<Void> reissueTokenAndRetry(ServerWebExchange exchange, GatewayFilterChain chain, String accessToken,
 		String refreshToken) {
+
 		return tokenClient.reissueTokens(new ReissueTokensDto(accessToken, refreshToken))
 			.flatMap(response -> {
 				String newAccessToken = response.accessToken();
 				String newRefreshToken = response.refreshToken();
 
 				// 새로 발급된 토근 응답에 추가
-				exchange.getResponse().getHeaders().add("New-Access-Token",
+				HttpHeaders httpHeaders = exchange.getResponse().getHeaders();
+				httpHeaders.add("New-Access-Token",
 					URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8));
-				exchange.getResponse().getHeaders().add("New-Refresh-Token",
+				httpHeaders.add("New-Refresh-Token",
 					URLEncoder.encode(newRefreshToken, StandardCharsets.UTF_8));
 
 				ServerHttpRequest updatedRequest = exchange.getRequest().mutate()
@@ -83,7 +86,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 				addAuthorizationHeaders(updatedRequest, newAccessToken);
 
-				return chain.filter(exchange.mutate().request(updatedRequest).build()); // 재발급된 토큰으로 요청 다시 진행
+				return chain.filter(exchange.mutate().request(updatedRequest).build()); // 재발급된 토큰으로 요청 이어서 진행
 			})
 			.onErrorResume(ex -> handleInvalidToken(exchange)); // 재발급 실패 시 에러 처리
 	}
