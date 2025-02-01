@@ -45,6 +45,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			String accessToken = extractToken(exchange, "Access-Token");
 			String refreshToken = extractToken(exchange, "Refresh-Token");
 
+			if (accessToken == null || refreshToken == null) {
+				return chain.filter(exchange);
+			}
+
 			try {
 				// Access-Token, Refresh-Token 이 유효한 경우
 				jwtUtils.getClaims(accessToken);
