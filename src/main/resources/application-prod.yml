@@ -1,0 +1,6 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://root:1q2w3e4r!@eventor-eureka:8761/eureka
+  instance:
+    prefer-ip-address: true
