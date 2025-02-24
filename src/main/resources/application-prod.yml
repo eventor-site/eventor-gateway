@@ -4,3 +4,6 @@ eureka:
       defaultZone: http://root:1q2w3e4r!@eventor-eureka:8761/eureka
   instance:
     prefer-ip-address: true
+
+cors:
+  allowed-origins: "http://eventor-front:8081"

@@ -4,3 +4,8 @@ eureka:
       defaultZone: http://root:1q2w3e4r!@localhost:8761/eureka
   instance:
     prefer-ip-address: true
+
+cors:
+  allowed-origins: "http://localhost:8081"
+
+
