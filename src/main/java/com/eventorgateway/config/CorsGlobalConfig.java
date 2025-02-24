@@ -12,7 +12,7 @@ public class CorsGlobalConfig {
 	@Bean
 	public CorsWebFilter corsWebFilter() {
 		CorsConfiguration corsConfig = new CorsConfiguration();
-		corsConfig.addAllowedOrigin("/**");
+		corsConfig.addAllowedOrigin("*");
 		corsConfig.addAllowedMethod("*");
 		corsConfig.addAllowedHeader("*");
 		corsConfig.setAllowCredentials(true);
