@@ -6,4 +6,4 @@ eureka:
     prefer-ip-address: true
 
 cors:
-  allowed-origins: "http://eventor-front:8081"
+  allowed-origins: https://www.eventor.store

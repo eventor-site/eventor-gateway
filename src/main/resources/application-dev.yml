@@ -6,6 +6,6 @@ eureka:
     prefer-ip-address: true
 
 cors:
-  allowed-origins: "http://localhost:8081"
+  allowed-origins: http://localhost:8081
 
 
