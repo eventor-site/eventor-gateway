@@ -16,8 +16,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.eventorgateway.auth.client.TokenClient;
-import com.eventorgateway.auth.dto.ReissueTokensDto;
+import com.eventorgateway.auth.client.AuthClient;
+import com.eventorgateway.auth.dto.ReissueTokenDto;
 import com.eventorgateway.auth.util.JwtUtils;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,13 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 	private final JwtUtils jwtUtils;
-	private final TokenClient tokenClient;
+	private final AuthClient tokenClient;
 
-	public AuthorizationHeaderFilter(JwtUtils jwtUtils, TokenClient tokenClient) {
+	public AuthorizationHeaderFilter(JwtUtils jwtUtils, AuthClient tokenClient) {
 		super(Config.class);
 		this.jwtUtils = jwtUtils;
 		this.tokenClient = tokenClient;
@@ -59,7 +58,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				addAuthorizationHeaders(exchange.getRequest(), accessToken);
 			} catch (ExpiredJwtException ex) {
 				// 액세스 토큰이 만료된 경우
-				log.info("토큰 재발급 시작");
 				return reissueTokenAndRetry(exchange, chain, accessToken, refreshToken);
 			} catch (Exception ex) {
 				// 토큰이 유효하지 않은 경우
@@ -74,12 +72,11 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	private Mono<Void> reissueTokenAndRetry(ServerWebExchange exchange, GatewayFilterChain chain, String accessToken,
 		String refreshToken) {
 
-		return tokenClient.reissueTokens(new ReissueTokensDto(accessToken, refreshToken))
+		return tokenClient.reissueTokens(new ReissueTokenDto(accessToken, refreshToken))
 			.flatMap(response -> {
 				String newAccessToken = response.accessToken();
 				String newRefreshToken = response.refreshToken();
 
-				log.info("재발급 토큰 New-Access-Token: {}, New-Refresh-Token: {}", newAccessToken, newRefreshToken);
 				// 새로 발급된 토근 응답에 추가
 				HttpHeaders httpHeaders = exchange.getResponse().getHeaders();
 				httpHeaders.add("New-Access-Token",

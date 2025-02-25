@@ -3,7 +3,7 @@ package com.eventorgateway.auth.dto;
 import lombok.Builder;
 
 @Builder
-public record ReissueTokensDto(
+public record ReissueTokenDto(
 	String accessToken,
 	String refreshToken) {
 }
