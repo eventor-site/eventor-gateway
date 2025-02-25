@@ -5,5 +5,5 @@ eureka:
   instance:
     prefer-ip-address: true
 
-cors:
-  allowed-origins: https://www.eventor.store
+webClient:
+  url: http://eventor-auth:8070
