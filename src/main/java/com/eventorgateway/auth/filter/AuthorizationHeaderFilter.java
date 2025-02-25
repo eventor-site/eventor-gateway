@@ -21,9 +21,11 @@ import com.eventorgateway.auth.dto.ReissueTokensDto;
 import com.eventorgateway.auth.util.JwtUtils;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 	private final JwtUtils jwtUtils;
@@ -57,6 +59,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				addAuthorizationHeaders(exchange.getRequest(), accessToken);
 			} catch (ExpiredJwtException ex) {
 				// 액세스 토큰이 만료된 경우
+				log.info("토큰 재발급 시작");
 				return reissueTokenAndRetry(exchange, chain, accessToken, refreshToken);
 			} catch (Exception ex) {
 				// 토큰이 유효하지 않은 경우
@@ -76,6 +79,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 				String newAccessToken = response.accessToken();
 				String newRefreshToken = response.refreshToken();
 
+				log.info("재발급 토큰 New-Access-Token: {}, New-Refresh-Token: {}", newAccessToken, newRefreshToken);
 				// 새로 발급된 토근 응답에 추가
 				HttpHeaders httpHeaders = exchange.getResponse().getHeaders();
 				httpHeaders.add("New-Access-Token",
