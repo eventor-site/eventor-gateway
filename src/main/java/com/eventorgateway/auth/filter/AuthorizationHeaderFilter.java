@@ -107,7 +107,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	// 토큰이 유효하지 않은 경우 처리하는 메소드
 	private Mono<Void> handleInvalidToken(ServerWebExchange exchange) {
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-		byte[] bytes = "유효하지 않은 토큰 입니다.".getBytes(StandardCharsets.UTF_8);
+		byte[] bytes = "토큰 검증에 실패하였습니다.".getBytes(StandardCharsets.UTF_8);
 		DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
 		return exchange.getResponse().writeWith(Flux.just(buffer));
 	}
@@ -122,29 +122,29 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		return headers.getFirst().replace("Bearer+", ""); // "Bearer " 제거
 	}
 
-	// 토큰 검증 요청 중 예외 상황에 따른 예외 처리 핸들러
-	@Bean
-	public ErrorWebExceptionHandler tokenValidation() {
-		return new JwtTokenExceptionHandler();
-	}
-
-	public static class JwtTokenExceptionHandler implements ErrorWebExceptionHandler {
-		private String getErrorCode(int errorCode) {
-			return "{errorCode: " + errorCode + "}";
-		}
-
-		@Override
-		public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-			int errorCode = 500;
-			if (ex instanceof NullPointerException) {
-				errorCode = 100;
-			} else if (ex instanceof ExpiredJwtException) {
-				errorCode = 200;
-			}
-
-			byte[] bytes = getErrorCode(errorCode).getBytes(StandardCharsets.UTF_8);
-			DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-			return exchange.getResponse().writeWith(Flux.just(buffer));
-		}
-	}
+	// // 토큰 검증 요청 중 예외 상황에 따른 예외 처리 핸들러
+	// @Bean
+	// public ErrorWebExceptionHandler tokenValidation() {
+	// 	return new JwtTokenExceptionHandler();
+	// }
+	//
+	// public static class JwtTokenExceptionHandler implements ErrorWebExceptionHandler {
+	// 	private String getErrorCode(int errorCode) {
+	// 		return "{errorCode: " + errorCode + "}";
+	// 	}
+	//
+	// 	@Override
+	// 	public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+	// 		int errorCode = 500;
+	// 		if (ex instanceof NullPointerException) {
+	// 			errorCode = 100;
+	// 		} else if (ex instanceof ExpiredJwtException) {
+	// 			errorCode = 200;
+	// 		}
+	//
+	// 		byte[] bytes = getErrorCode(errorCode).getBytes(StandardCharsets.UTF_8);
+	// 		DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+	// 		return exchange.getResponse().writeWith(Flux.just(buffer));
+	// 	}
+	// }
 }
