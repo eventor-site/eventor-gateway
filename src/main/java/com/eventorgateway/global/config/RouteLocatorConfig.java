@@ -1,4 +1,4 @@
-package com.eventorgateway.config;
+package com.eventorgateway.global.config;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;

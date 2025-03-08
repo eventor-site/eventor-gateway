@@ -4,14 +4,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -19,9 +18,12 @@ import org.springframework.web.server.ServerWebExchange;
 import com.eventorgateway.auth.client.AuthClient;
 import com.eventorgateway.auth.dto.ReissueTokenDto;
 import com.eventorgateway.auth.util.JwtUtils;
+import com.eventorgateway.global.dto.ApiResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,6 +31,7 @@ import reactor.core.publisher.Mono;
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 	private final JwtUtils jwtUtils;
 	private final AuthClient tokenClient;
+	private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
 	public AuthorizationHeaderFilter(JwtUtils jwtUtils, AuthClient tokenClient) {
 		super(Config.class);
@@ -107,10 +110,29 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 	// 토큰이 유효하지 않은 경우 처리하는 메소드
 	private Mono<Void> handleInvalidToken(ServerWebExchange exchange) {
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-		byte[] bytes = "토큰 검증에 실패하였습니다.".getBytes(StandardCharsets.UTF_8);
-		DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-		return exchange.getResponse().writeWith(Flux.just(buffer));
+		exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+		ApiResponse<?> response = ApiResponse.createError("401", "토큰 검증에 실패하였습니다.");
+
+		try {
+			// ApiResponse 를 JSON 문자열로 변환
+			String json = objectMapper.writeValueAsString(response);
+			byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+			DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+
+			return exchange.getResponse().writeWith(Flux.just(buffer));
+		} catch (JsonProcessingException e) {
+			return Mono.error(new RuntimeException("JSON 변환 실패", e));
+		}
 	}
+
+	// // 토큰이 유효하지 않은 경우 처리하는 메소드
+	// private Mono<Void> handleInvalidToken(ServerWebExchange exchange) {
+	// 	exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+	// 	byte[] bytes = "토큰 검증에 실패하였습니다.".getBytes(StandardCharsets.UTF_8);
+	// 	DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+	// 	return exchange.getResponse().writeWith(Flux.just(buffer));
+	// }
 
 	// 특정 헤더에서 토큰 값을 추출하는 메소드
 	private String extractToken(ServerWebExchange exchange, String headerName) {
