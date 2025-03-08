@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -30,24 +32,29 @@ public class ApiResponse<T> {
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime serverTime = LocalDateTime.now();
 
-	public static <T> ApiResponse<T> createSuccess(T data, String message) {
-		return new ApiResponse<>(SUCCESS_STATUS, data, message);
+	// success 응답 반환
+	public static <T> ResponseEntity<ApiResponse<T>> createSuccess(T data, String message) {
+		ApiResponse<T> response = new ApiResponse<>(SUCCESS_STATUS, data, message);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	public static <T> ApiResponse<T> createSuccess(T data) {
-		return new ApiResponse<>(SUCCESS_STATUS, data, null);
+	public static <T> ResponseEntity<ApiResponse<T>> createSuccess(T data) {
+		ApiResponse<T> response = new ApiResponse<>(SUCCESS_STATUS, data, null);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	public static <T> ApiResponse<T> createSuccess(String message) {
-		return new ApiResponse<>(SUCCESS_STATUS, null, message);
+	public static <T> ResponseEntity<ApiResponse<T>> createSuccess(String message) {
+		ApiResponse<T> response = new ApiResponse<>(SUCCESS_STATUS, null, message);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	public static <T> ApiResponse<T> createSuccess() {
-		return new ApiResponse<>(SUCCESS_STATUS, null, null);
+	public static <T> ResponseEntity<ApiResponse<T>> createSuccess() {
+		ApiResponse<T> response = new ApiResponse<>(SUCCESS_STATUS, null, null);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	// Hibernate Validator 에 의해 유효하지 않은 데이터로 인해 API 호출이 거부될때 반환
-	public static ApiResponse<?> createFail(BindingResult bindingResult) {
+	// Hibernate Validator 에 의한 유효성 검사 실패 시 반환
+	public static ResponseEntity<ApiResponse<?>> createFail(BindingResult bindingResult) {
 		Map<String, String> errors = new HashMap<>();
 
 		List<ObjectError> allErrors = bindingResult.getAllErrors();
@@ -58,14 +65,19 @@ public class ApiResponse<T> {
 				errors.put(error.getObjectName(), error.getDefaultMessage());
 			}
 		}
-		return new ApiResponse<>(FAIL_STATUS, errors, null);
+
+		ApiResponse<Map<String, String>> response = new ApiResponse<>(FAIL_STATUS, errors, null);
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
-	public static <T> ApiResponse<T> createError(String status, String message) {
-		return new ApiResponse<>(status, null, message);
+	// error 응답 반환
+	public static <T> ResponseEntity<ApiResponse<T>> createError(HttpStatus status, String message) {
+		ApiResponse<T> response = new ApiResponse<>(status.name(), null, message);
+		return new ResponseEntity<>(response, status);
 	}
 
-	private ApiResponse(String status, T data, String message) {
+	// 생성자
+	public ApiResponse(String status, T data, String message) {
 		this.status = status;
 		this.data = data;
 		this.message = message;

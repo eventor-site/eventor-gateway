@@ -1,6 +1,5 @@
 package com.eventorgateway.auth.filter;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -76,20 +76,20 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		String refreshToken) {
 
 		return tokenClient.reissueTokens(new ReissueTokenDto(accessToken, refreshToken))
-			.flatMap(response -> {
+			.flatMap(apiResponse -> {
+				ReissueTokenDto response = apiResponse.getData();
+
 				String newAccessToken = response.accessToken();
 				String newRefreshToken = response.refreshToken();
 
 				// 새로 발급된 토근 응답에 추가
 				HttpHeaders httpHeaders = exchange.getResponse().getHeaders();
-				httpHeaders.add("New-Access-Token",
-					URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8));
-				httpHeaders.add("New-Refresh-Token",
-					URLEncoder.encode(newRefreshToken, StandardCharsets.UTF_8));
+				httpHeaders.add("new-access-token", newAccessToken);
+				httpHeaders.add("new-refresh-token", newRefreshToken);
 
 				ServerHttpRequest updatedRequest = exchange.getRequest().mutate()
-					.header("Access-Token", newAccessToken)
-					.header("Refresh-Token", newRefreshToken)
+					.header("access-token", newAccessToken)
+					.header("refresh-token", newRefreshToken)
 					.build();
 
 				addAuthorizationHeaders(updatedRequest, newAccessToken);
@@ -112,7 +112,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 		exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-		ApiResponse<?> response = ApiResponse.createError("401", "토큰 검증에 실패하였습니다.");
+		ResponseEntity<ApiResponse<Void>> response = ApiResponse.createError(HttpStatus.UNAUTHORIZED,
+			"토큰 검증에 실패하였습니다.");
 
 		try {
 			// ApiResponse 를 JSON 문자열로 변환
