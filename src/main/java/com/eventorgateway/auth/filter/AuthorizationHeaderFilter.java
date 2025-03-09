@@ -1,5 +1,6 @@
 package com.eventorgateway.auth.filter;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -84,8 +85,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
 				// 새로 발급된 토근 응답에 추가
 				HttpHeaders httpHeaders = exchange.getResponse().getHeaders();
-				httpHeaders.add("new-access-token", newAccessToken);
-				httpHeaders.add("new-refresh-token", newRefreshToken);
+				httpHeaders.add("new-access-token",
+					URLEncoder.encode(newAccessToken, StandardCharsets.UTF_8));
+				httpHeaders.add("new-refresh-token",
+					URLEncoder.encode(newRefreshToken, StandardCharsets.UTF_8));
 
 				ServerHttpRequest updatedRequest = exchange.getRequest().mutate()
 					.header("access-token", newAccessToken)
