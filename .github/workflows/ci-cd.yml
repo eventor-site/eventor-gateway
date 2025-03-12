@@ -10,6 +10,7 @@ jobs:
     env:
       EUREKA_USERNAME: ${{ secrets.EUREKA_USERNAME }}
       EUREKA_PASSWORD: ${{ secrets.EUREKA_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     runs-on: ubuntu-22.04
     steps:
@@ -48,6 +49,7 @@ jobs:
           docker build \
           --build-arg EUREKA_USERNAME="${{secrets.EUREKA_USERNAME}}" \
           --build-arg EUREKA_PASSWORD="${{secrets.EUREKA_PASSWORD}}" \
+          --build-arg JWT_SECRET="${{secrets.JWT_SECRET}}" \
           -t ${{ secrets.DOCKER_USERNAME }}/eventor-gateway .  # 원하는 이름으로 로컬에서 태깅
           docker push ${{ secrets.DOCKER_USERNAME }}/eventor-gateway 
 
