@@ -19,9 +19,6 @@ public class RouteLocatorConfig {
 	@Bean
 	public RouteLocator devRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
-			// .route("bookstore-back", r -> r.path("/back/**")
-			//         .uri("lb://book-store-back") // 로드밸런싱 활성화
-			// )
 			.route("eventor-back", r -> r.path("/back/users/signup/**", "/back/users/recover/**")
 				.uri("http://localhost:8083")
 			)
@@ -40,11 +37,11 @@ public class RouteLocatorConfig {
 	public RouteLocator prodRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
 			.route("eventor-back", r -> r.path("/back/users/signup/**", "/back/users/recover/**")
-				.uri("http://eventor-back:8083") // 컨테이너 이름 사용
+				.uri("lb://eventor-back") // 컨테이너 이름 사용
 			)
 			.route("eventor-back", r -> r.path("/back/**")
 				.filters(f -> f.filter(authorizationHeaderFilter.apply(new AuthorizationHeaderFilter.Config())))
-				.uri("http://eventor-back:8083") // 컨테이너 이름 사용
+				.uri("lb://eventor-back") // 컨테이너 이름 사용
 			)
 			.route("eventor-auth", r -> r.path("/auth/**", "/oauth2/**")
 				.uri("http://eventor-auth:8070") // 컨테이너 이름 사용
