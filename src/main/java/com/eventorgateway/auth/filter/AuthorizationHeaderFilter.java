@@ -11,7 +11,6 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -115,8 +114,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 		exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 		exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-		ResponseEntity<ApiResponse<Void>> response = ApiResponse.createError(HttpStatus.UNAUTHORIZED,
-			"토큰 검증에 실패하였습니다.");
+		ApiResponse<Void> response = new ApiResponse<>(HttpStatus.UNAUTHORIZED.name(), null, "인증이 만료되었습니다.");
 
 		try {
 			// ApiResponse 를 JSON 문자열로 변환
