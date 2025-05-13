@@ -23,5 +23,4 @@ public class CacheConfig {
 			.expireAfterWrite(10, java.util.concurrent.TimeUnit.MINUTES)
 			.maximumSize(1000);
 	}
-	// 비밀번호 변경
 }
