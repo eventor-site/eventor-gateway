@@ -20,11 +20,11 @@ public class RouteLocatorConfig {
 	public RouteLocator devRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
 			.route("eventor-back", r -> r.path("/back/users/signup/**", "/back/users/recover/**")
-				.uri("http://localhost:8083")
+				.uri("http://localhost:8101")
 			)
 			.route("eventor-back", r -> r.path("/back/**")
 				.filters(f -> f.filter(authorizationHeaderFilter.apply(new AuthorizationHeaderFilter.Config())))
-				.uri("http://localhost:8083")
+				.uri("http://localhost:8101")
 			)
 			.route("eventor-auth", r -> r.path("/auth/**", "/oauth2/**")
 				.uri("http://localhost:8070")
